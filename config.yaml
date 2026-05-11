@@ -1,0 +1,17 @@
+withings:
+  client_id: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  client_secret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  # Must exactly match the redirect URI registered in your Withings developer app
+  redirect_uri: "http://your.public.address:8081/callback"
+  user_name: "marko"
+
+mqtt:
+  host: "mqtt.server.address"
+  port: 1883
+  username: ""        # leave empty if broker has no auth
+  password: ""
+  discovery_prefix: "homeassistant"   # must match HA's mqtt.discovery_prefix setting
+  state_topic_base: "withings"
+
+# How often to poll for new measurements (seconds). 300 = 5 minutes.
+poll_interval: 3600
