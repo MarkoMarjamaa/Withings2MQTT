@@ -10,6 +10,8 @@ It opens in browser the Withings access request, accept it.
 
 If Withings can't access your callback, check it with your browser. 
 
+You only need the port open when doing the initial setup. After that you can close it. 
+
 ## Running
 When setup succeeded, it creates tokens.json and you can start getting values. 
 
