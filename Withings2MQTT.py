@@ -58,6 +58,27 @@ TOKENS_FILE = os.path.join(SCRIPT_DIR, "tokens.json")
 STATE_FILE  = os.path.join(SCRIPT_DIR, "state.json")
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.yaml")
 
+trigger_event = threading.Event()
+
+class _WebhookHandler(http.server.BaseHTTPRequestHandler):
+    def do_POST(self):
+        if self.path == "/api/webhook/withings_sync":
+            self.send_response(200)
+            self.end_headers()
+            log.info("Webhook trigger received from router, polling now...")
+            trigger_event.set()
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+    def log_message(self, fmt, *args):
+        pass  # suppress request logging
+
+def start_webhook_listener(port=8888):
+    server = http.server.HTTPServer(("0.0.0.0", port), _WebhookHandler)
+    t = threading.Thread(target=server.serve_forever, daemon=True)
+    t.start()
+    log.info("Webhook listener started on port %d", port)
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
@@ -336,6 +357,10 @@ def run_bridge(config):
     poll_interval = config.get("poll_interval", 300)
     log.info("Bridge running. Polling every %ds. Press Ctrl+C to stop.", poll_interval)
 
+    # Start webhook listener for router trigger
+    webhook_port = config.get("webhook_port", 8888)
+    start_webhook_listener(webhook_port)
+    
     try:
         while True:
             try:
@@ -356,7 +381,11 @@ def run_bridge(config):
             except Exception as exc:
                 log.error("Poll error: %s", exc)
 
-            time.sleep(poll_interval)
+            # Wait for webhook trigger OR normal poll interval, whichever comes first
+            triggered = trigger_event.wait(timeout=poll_interval)
+            if triggered:
+                log.info("Triggered by scale sync event.")
+                trigger_event.clear()
 
     except KeyboardInterrupt:
         log.info("Stopping.")
