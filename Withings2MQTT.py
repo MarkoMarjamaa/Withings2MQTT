@@ -88,7 +88,7 @@ def refresh_tokens(config, tokens):
     """Exchange a refresh_token for a new access_token. Mutates tokens dict."""
     log.info("Access token expired, refreshing...")
     r = requests.post(TOKEN_URL, data={
-        "action":        "refreshtoken",
+        "action":        "requesttoken",
         "client_id":     config["withings"]["client_id"],
         "client_secret": config["withings"]["client_secret"],
         "refresh_token": tokens["refresh_token"],
