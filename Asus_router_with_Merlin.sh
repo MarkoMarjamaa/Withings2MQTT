@@ -19,7 +19,7 @@ HA_URL="http://your.withings2mqtt.address:8888/api/webhook/withings_sync"
 COOLDOWN=60
 LAST_TRIGGER=0
 
-tail -f /tmp/syslog.log | awk '/WITHINGS:/ { print; fflush() }' | while read line; do
+tail -F /tmp/syslog.log | awk '/WITHINGS:/ { print; fflush() }' | while read line; do
     NOW=$(date +%s)
     if [ $((NOW - LAST_TRIGGER)) -gt $COOLDOWN ]; then
         LAST_TRIGGER=$NOW
