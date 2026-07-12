@@ -370,12 +370,13 @@ def run_bridge(config):
                 if grps:
                     log.info("Found %d new measurement group(s).", len(grps))
                     log.info("Groups: %s", str(grps))
+                    last_measurement_date = grps[-1]["date"]
                     for group in grps:
-                        if group["attrib"] < 10 :
+                        if (group["attrib"] < 10) and ( last_measurement_date == group["date"] ):
                             values = decode_group(group)
                             log.info("Publishing measurement group from timestamp %d:", group["date"])
                             publish_values(mqttc, tokens, values, config)
-                            state["last_measurement_date"] = group["date"]
+                    state["last_measurement_date"] = last_measurement_date
                     save_state(state)
                 else:
                     log.debug("No new measurements.")
